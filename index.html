@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chatty: AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/showdown@1.9.1/dist/showdown.min.js"></script>
+    <link rel="icon" type="image/png" sizes="512x512" href="chatty512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="chatty180.png">
+    <meta name="apple-mobile-web-app-title" content="Chatty">
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <div id="costEstimate" style="display:none;">Next API Call: $0.00</div>
+    <div id="logout" style="display:none;">Logout</div>
+    <div id="customContextMenu" style="display: none; position: absolute; z-index: 1000; padding: 10px;">
+        <div id="editMsg">Edit</div>
+        <div id="deleteMsg">Delete</div>
+    </div>
+    <div id="api-key-container">
+        <form id="api-key-form">
+            <input type="password" id="api-key-input" placeholder="Enter your OpenAI API key">
+            <select id="role-select">
+                <option value="" disabled selected>Select Chatty's Role</option>
+                <option value="early-learning">Early Learning Expert</option>
+                <option value="pair-programmer">Pair Programmer</option>
+                <option value="custom-role">Custom Role</option>
+                <option value="generic">Generic</option>
+            </select>
+            <textarea id="custom-role-description" placeholder="Describe Chatty's role. Keep it short but ensure it describes how Chatty should interact during a conversation. This will give you better quality responses." style="display:none;" required></textarea>
+            <button type="submit" id="save-api-key-btn">Save API Key</button>
+            </form>
+        <a href="https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/" target="_blank">How to get an Open AI
+            API key</a>
+        <p><i class="fas fa-lock"></i>&nbsp;&nbsp;The Open API key is stored locally in your browser and not sent to our
+            server&nbsp;&nbsp;<i class="fas fa-lock"></i></p>
+    </div>
+    <div class="chat-container" style="display:none;">
+        <div class="chat-box" id="chat-box">
+            <!-- Messages will be appended here -->
+        </div>
+        <div id="resize-grip" style="cursor: ns-resize; height: 10px;"></div>
+        <div class="input-group">
+            <textarea id="user-input" placeholder="Type a message..."></textarea>
+            <button id="send-btn" class="icon-button"><i class="fa-solid fa-paper-plane"></i></button>
+            <button id="export-btn" class="icon-button"><i class="fa-solid fa-download"></i></button>
+            <button id="import-btn" class="icon-button"><i class="fa-solid fa-upload"></i></button>
+            <button id="new-chat-btn" class="icon-button"
+                title="Ctrl + Click to open new chat without saving current chat."><i
+                    class="fa-solid fa-plus"></i></button>
+            <div class="spinner-container">
+                <div id="spinner" class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('api-key-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const selectedRole = document.getElementById('role-select').value;
+            if (selectedRole === 'custom-role') {
+                const customRoleDescription = document.getElementById('custom-role-description').value;
+                localStorage.setItem('chatty_custom_role_description', customRoleDescription);
+            }
+        });
+
+        function toggleCustomRoleDescription() {
+            const roleSelect = document.getElementById('role-select');
+            const customRoleDescription = document.getElementById('custom-role-description');
+            if (roleSelect.value === 'custom-role') {
+                customRoleDescription.style.display = '';
+            } else {
+                customRoleDescription.style.display = 'none';
+            }
+        }
+
+        document.getElementById('role-select').addEventListener('change', toggleCustomRoleDescription);
+        toggleCustomRoleDescription();
+    </script>
+    <script>
+        // Function to escape HTML
+        function escapeHTML(html) {
+          return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+      
+        // Initialize Showdown converter
+        let converter = new showdown.Converter({
+          tables: true, // Enable table support
+          simplifiedAutoLink: true,
+          literalMidWordUnderscores: true,
+          strikethrough: true,
+          tasklists: true
+        });
+      
+        // Function to convert Markdown to HTML
+        function formatMarkdownWithShowdown(text) {
+          let html = converter.makeHtml(text);
+      
+          // Here you can add any post-processing for the HTML, like adding copy buttons to code blocks
+          // For example, this is a simple way to add a copy button to each code block
+          html = html.replace(/<pre><code[^>]*>/g, match => {
+            let copyButton = `<button onclick="copyCodeToClipboard(this)">Copy</button>`;
+            return `${copyButton}${match}`;
+          });
+      
+          return html;
+        }
+      
+        // Function to copy code to clipboard
+        function copyCodeToClipboard(button) {
+          // Implement the logic to copy code to clipboard
+          // This is just a placeholder function
+          console.log("Copy to clipboard functionality goes here.");
+        }
+      </script>
+    <script src="script.js"></script>
+</body>
+
+</html>
